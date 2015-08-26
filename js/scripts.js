@@ -1,35 +1,53 @@
+// API KEY GLOBAL VARIABLE
+var apiKey = 'GVFBSQMXrChv4cUS6T4q2g(('
+
 $(function() {
-  function init() {
-    SE.init({
-      clientId: 5421,
-      key: 'GVFBSQMXrChv4cUS6T4q2g((',
-      channelUrl: 'file:///Users/Ham/projects/BlizzTest/blank',
-      complete: function () {
-        dothis();
-      }
-    });
 
-    $('#login-button').click(function() {
-      SE.authenticate({
-        success: function(data) { },
-        error: function(data) { },
-        scope: ['read_inbox'],
-        networkUsers: true
-      });
-    });
-  }
-  function dothis(key) {
-    loadQuestions(key);
-  }
-  init();
-});
+  SE.init({
+    clientId: 5421,
+    key: apiKey,
+    channelUrl: 'file:///Users/Ham/projects/BlizzTest/blank',
+    complete: function () {
+      loadQuestions(apiKey);
+    }
+  });
 
+  $('#login-button').click(function() {
+    SE.authenticate({
+      success: function(data) {
+        alert(
+          'User Authorized with account id = ' +
+          data.networkUsers[0].account_id + ', got access token = ' +
+          data.accessToken
+        );
+      },
+      error: function(data) {
+        alert('An error occurred:\n' + data.errorName + '\n' + data.errorMessage);
+      },
+      scope: ['read_inbox'],
+      networkUsers: true
+    });
+  });
+
+  $('#search-button').on('click', function(e) {
+    e.preventDefault;
+    searchQuestions($('#search').val());
+  });
+
+  $('#search').keyup(function(e) {
+    e.preventDefault;
+    if (event.keyCode == 13) {
+      $('#search-button').click();
+    }
+  });
+
+}); // END DOCUMENT READY
 
 function loadQuestions(key) {
   console.log("Loading questions");
   $.ajax({
     type: 'GET',
-    url: 'https://api.stackexchange.com/2.2/questions?pagesize=10&page=1&site=stackoverflow&filter=withbody',
+    url: 'https://api.stackexchange.com/2.2/questions?key=' + key + '&pagesize=10&page=1&site=stackoverflow&filter=withbody',
     success: function(res) {
       renderQuestionCollection(res);
     },
@@ -40,21 +58,20 @@ function loadQuestions(key) {
 };
 
 function renderQuestionCollection(data) {
-  var $listEls = [];
-  var listLen = data.items.length;
-  var i = 0;
+  var $questionsList = [];
+  var questionCount = data.items.length;
   var $ul = $('<ul>');
 
-  for (i; i <= listLen; i += 1) {
-    $listEls.push(renderItem(data.items[i]));
+  for (i = 0; i <= (questionCount - 1); i += 1) {
+    $questionsList.push(renderQuestion(data.items[i]));
   };
   $ul.addClass('list-group');
-  $ul.append($listEls);
+  $ul.append($questionsList);
   $('#questions').append($ul);
 
 }
 
-function renderItem(item) {
+function renderQuestion(item) {
   if (!item) {
     return
   }
@@ -65,7 +82,6 @@ function renderItem(item) {
   $question.addClass('list-group-item');
   // $questionLink.attr('href', item.link);
   $questionLink.attr('data-id', item.question_id);
-  // console.log($questionLink.data('id'));
   $questionLink.on('click', function(e) {
     e.preventDefault;
     loadDetail($(this).data('id'));
@@ -75,11 +91,29 @@ function renderItem(item) {
   return $question.append($questionLink);
 }
 
+function searchQuestions(search) {
+  $.ajax({
+    type: 'GET',
+    url: 'https://api.stackexchange.com/2.2/search?key=' + apiKey + '&site=stackoverflow&order=desc&intitle=' + search,
+    success: function(res) {
+      renderSearchList(res);
+    },
+    error: function(err) {
+      console.log(err);
+    }
+  });
+}
+
+function renderSearchList(data) {
+
+}
+
 function loadDetail(id) {
   var question = $.ajax({
     type: 'GET',
-    url: 'https://api.stackexchange.com/2.2/questions/' + id + '?site=stackoverflow&filter=withbody',
+    url: 'https://api.stackexchange.com/2.2/questions/' + id + '?site=stackoverflow&filter=withbody&key=' + apiKey,
     success: function(res) {
+      $('.question-wrapper, .answers-wrapper').remove();
       renderDetail(res);
     },
     error: function(err) {
@@ -88,9 +122,9 @@ function loadDetail(id) {
   });
   var answers = $.ajax({
     type: 'GET',
-    url: 'https://api.stackexchange.com/2.2/questions/' + id + '/answers/?site=stackoverflow&filter=withbody',
+    url: 'https://api.stackexchange.com/2.2/questions/' + id + '/answers/?site=stackoverflow&filter=withbody&key=' + apiKey,
     success: function(res) {
-      renderAnswers(res);
+      renderAnswerCollection(res);
     },
     error: function(err) {
       console.log(err);
@@ -99,36 +133,48 @@ function loadDetail(id) {
   console.log(question, answers);
 }
 
-function renderDetail(item) {
+function renderDetail(data) {
   var $wrapper = $('<div>').addClass('question-wrapper');
-  var $title = $('<h3>').append(item.title);
+  var $title = $('<h3>').html('Question: ').append(data.items[0].title);
   var $body = $('<div>').addClass('question-body');
 
-  $body.append(item.items.body);
+  $body.append(data.items[0].body);
   $wrapper.append($title).append($body);
-
-  console.log(item);
 
   return $('#question-detail').append($wrapper);
 };
 
-function renderAnswers(item) {
-  if (!item) {
+function renderAnswerCollection(data) {
+  var $answersList = [];
+  var answerCount = data.items.length;
+  var $wrapper = $('<div>').addClass('answers-wrapper');
+
+  if (answerCount <= 0) {
     console.log('No Answers');
     return
-  }
-  var $answers = [];
-  var $wrapper = $('<div>').addClass('answers-wrapper');
-  var $body = $('<div>').addClass('answer-body');
-
-  for (var i = 0; i <= item.items.length; i += 1) {
-    $body.append(item.items.body);
-    $answers.push($body);
-
-    console.log(item);
+  } else {
+    console.log('Answers: ' + answerCount);
   }
 
-  return $('#question-detail').append($wrapper);
+  for (var i = 0; i <= (answerCount - 1); i += 1) {
+    $answersList.push(renderAnswer(data.items[i], i));
+  }
+
+  $wrapper.append($answersList);
+  $('#question-detail').append($wrapper);
+}
+
+function renderAnswer(answer, i) {
+  if (!answer) {
+    return
+  }
+
+  var count = i + 1;
+  var $answerContainer = $('<div>');
+  var $answerNumber = $('<h3>').html('Answer #' + count);
+  var $answer = $('<div>').addClass('answer').html(answer.body);
+
+  return $answerContainer.append($answerNumber, $answer);
 }
 
 
