@@ -30,21 +30,27 @@ $(function() {
   });
 
   $('#search-button').on('click', function(e) {
-    e.preventDefault;
+    console.log($('#search').val());
     searchQuestions($('#search').val());
   });
 
   $('#search').keyup(function(e) {
-    e.preventDefault;
     if (event.keyCode == 13) {
+      e.preventDefault;
       $('#search-button').click();
     }
   });
 
+  $('#search-form').submit(function(e) {
+    return false;
+  });
+
+  $('#search').focus();
+
 }); // END DOCUMENT READY
 
 function loadQuestions(key) {
-  console.log("Loading questions");
+  console.log("Loading questions...");
   $.ajax({
     type: 'GET',
     url: 'https://api.stackexchange.com/2.2/questions?key=' + key + '&pagesize=10&page=1&site=stackoverflow&filter=withbody',
@@ -58,16 +64,18 @@ function loadQuestions(key) {
 };
 
 function renderQuestionCollection(data) {
+  $('#questions-list').remove();
   var $questionsList = [];
   var questionCount = data.items.length;
-  var $ul = $('<ul>');
+  var $ul = $('<ul>').addClass('list-group').attr('id', 'questions-list');
 
   for (i = 0; i <= (questionCount - 1); i += 1) {
     $questionsList.push(renderQuestion(data.items[i]));
   };
-  $ul.addClass('list-group');
   $ul.append($questionsList);
   $('#questions').append($ul);
+
+  console.log('Questions loaded.');
 
 }
 
@@ -94,9 +102,9 @@ function renderQuestion(item) {
 function searchQuestions(search) {
   $.ajax({
     type: 'GET',
-    url: 'https://api.stackexchange.com/2.2/search?key=' + apiKey + '&site=stackoverflow&order=desc&intitle=' + search,
+    url: 'https://api.stackexchange.com/2.2/search?key=' + apiKey + '&site=stackoverflow&order=desc&intitle=' + search + '&pagesize=10&page=1',
     success: function(res) {
-      renderSearchList(res);
+      renderQuestionCollection(res);
     },
     error: function(err) {
       console.log(err);
@@ -105,7 +113,7 @@ function searchQuestions(search) {
 }
 
 function renderSearchList(data) {
-
+  console.log(data);
 }
 
 function loadDetail(id) {
@@ -130,12 +138,13 @@ function loadDetail(id) {
       console.log(err);
     }
   });
-  console.log(question, answers);
 }
 
 function renderDetail(data) {
+  console.log('Loading question: "' + data.items[0].title + '"...')
+
   var $wrapper = $('<div>').addClass('question-wrapper');
-  var $title = $('<h3>').html('Question: ').append(data.items[0].title);
+  var $title = $('<h2>').html('Question: ').append(data.items[0].title);
   var $body = $('<div>').addClass('question-body');
 
   $body.append(data.items[0].body);
@@ -150,10 +159,13 @@ function renderAnswerCollection(data) {
   var $wrapper = $('<div>').addClass('answers-wrapper');
 
   if (answerCount <= 0) {
-    console.log('No Answers');
+    var $noAnswers = $('<h2>').html('No Answers');
+
+    console.log('Question loaded. No answers.');
+    $('#question-detail').append($noAnswers);
     return
   } else {
-    console.log('Answers: ' + answerCount);
+    console.log('Question loaded. ' + answerCount + ' answers.');
   }
 
   for (var i = 0; i <= (answerCount - 1); i += 1) {
@@ -171,7 +183,7 @@ function renderAnswer(answer, i) {
 
   var count = i + 1;
   var $answerContainer = $('<div>');
-  var $answerNumber = $('<h3>').html('Answer #' + count);
+  var $answerNumber = $('<h2>').html('Answer #' + count);
   var $answer = $('<div>').addClass('answer').html(answer.body);
 
   return $answerContainer.append($answerNumber, $answer);
