@@ -18,7 +18,7 @@ $(function() {
     }
   });
 
-  checkLogin();
+  checkLoggedIn();
 
   $('#search-button').on('click', function(e) {
     console.log($('#search').val());
@@ -54,16 +54,16 @@ function loadQuestions(key) {
   });
 };
 
-function checkLogin() {
+function checkLoggedIn() {
   var params = $.getQueryParameters();
   var accessToken = params['#access_token'];
   var expires = params.expires;
 
   if (accessToken) {
-    renderLoggedIn(params['#access_token'], params.expires);
+    renderLoggedIn(accessToken);
   } else {
     $('#login-button').on('click', function(e) {
-      var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=read_inbox&redirect_uri=http://localhost:8000';
+      var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=write_access&redirect_uri=http://localhost:8000';
       window.open(href);
     });
   }
@@ -76,7 +76,7 @@ function renderQuestionCollection(data) {
   var $ul = $('<ul>').addClass('list-group').attr('id', 'questions-list');
 
   for (i = 0; i <= (questionCount - 1); i += 1) {
-    $questionsList.push(renderQuestion(data.items[i]));
+    $questionsList.push(renderQuestion(data.items[i], i));
   };
   $ul.append($questionsList);
   $('#questions').append($ul);
@@ -85,19 +85,20 @@ function renderQuestionCollection(data) {
 
 }
 
-function renderQuestion(item) {
+function renderQuestion(item, i) {
   if (!item) {
     return
   }
 
   var $question = $('<li>').addClass('list-group-item');
   var $questionLink = $('<a>').attr('data-id', item.question_id);
+  var title = (i + 1) + '. ' + item.title;
 
   $questionLink.on('click', function(e) {
     e.preventDefault;
     loadDetail($(this).data('id'));
   });
-  $questionLink.append(item.title);
+  $questionLink.append(title);
 
   return $question.append($questionLink);
 }
@@ -140,14 +141,19 @@ function loadDetail(id) {
 }
 
 function renderDetail(data) {
-  console.log('Loading question: "' + data.items[0].title + '"...')
+  console.log('Loading question: "' + data.items[0].title + '"...');
 
   var $wrapper = $('<div>').addClass('question-wrapper');
   var $title = $('<h2>').html('Question: ').append(data.items[0].title);
   var $body = $('<div>').addClass('question-body');
+  var $votes = $('<div>').attr('id', 'question-voting');
+  var voteHtml =  '<div class="vote-up-off glyphicon glyphicon-thumbs-up"><p>vote up</p></div>'
+                + '<div class="vote-down-off glyphicon glyphicon-thumbs-down"><p>vote down</p></div>'
+                + '<div class="star-off glyphicon glyphicon-star"><p>favorite</p></div>';
 
+  $votes.append(voteHtml);
   $body.append(data.items[0].body);
-  $wrapper.append($title).append($body);
+  $wrapper.append($votes).append($title).append($body);
 
   return $('#question-detail').append($wrapper);
 };
@@ -181,7 +187,7 @@ function renderAnswer(answer, i) {
   }
 
   var count = i + 1;
-  var $answerContainer = $('<div>');
+  var $answerContainer = $('<div>').addClass('clearfix');
   var $answerNumber = $('<h2>').html('Answer #' + count);
   var $answer = $('<div>').addClass('answer').html(answer.body);
 
@@ -189,7 +195,30 @@ function renderAnswer(answer, i) {
 }
 
 function renderLoggedIn(token,exp) {
-  
+  $('#login-button').addClass('hide');
+  $('#logout-button').removeClass('hide').on('click', function(e) {
+    // var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=write_access&redirect_uri=http://localhost:8000';
+    // window.open(href);
+  });
+
+  voteFunctions();
+}
+
+function voteFunctions() {
+  $('.vote-up-off').on('click', function(e) {
+    var vote = $.ajax({
+      type: 'GET',
+      url: 'https://api.stackexchange.com/2.2/questions/' + id + '?site=stackoverflow&filter=withbody&key=' + apiKey,
+      success: function(res) {
+        $('.question-wrapper, .answers-wrapper').remove();
+        renderDetail(res);
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    });
+    $(this).toggleClass('on');
+  });
 }
 
 

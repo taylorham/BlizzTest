@@ -7,6 +7,10 @@ img {
   width: 100%;
 }
 
+a {
+  cursor: pointer;
+}
+
 #header {
   height: 120px;
   background: #00141b;
@@ -35,17 +39,10 @@ main,
   padding-right: 0 !important;
 }
 
-main {
-
-}
-
 h4 {
   background: #00141b;
   padding-left: 20px;
   line-height: 44px;
-}
-
-section {
 }
 
 .list-group-item {
@@ -57,14 +54,36 @@ section {
   margin: 15px;
 }
 
+#question-voting {
+  float: left;
+  display: inline-block;
+  text-align: center;
+  width: 75px;
+  margin-bottom: 30px;
+  color: lightblue;
+  font-size: 24px;
+}
+
+#question-voting p {
+  margin-top: 6px;
+  font-size: 9px;
+}
+
+#question-voting > div {
+  /*float: left;*/
+  display: inline-block;
+  cursor: pointer;
+  margin: 8px 30px 8px 15px;
+}
+
+div[class*='-off'] {
+  color: #aaa;
+}
+
 article {
   margin: 8px;
   border: 1px solid #5d91a3;
   border-radius: 4px;
-}
-
-#sidebar {
-
 }
 
 .totals {
