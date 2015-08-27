@@ -223,6 +223,42 @@ function voteFunctions(id) {
       }
     });
   });
+  $('.vote-down').on('click', function(e) {
+    var vote = $.ajax({
+      type: 'POST',
+      url: 'https://api.stackexchange.com/2.2/questions/' + id + '/downvote',
+      data: {
+        site: 'stackoverflow',
+        key: apiKey,
+        access_token: accessToken
+      },
+      success: function(res) {
+        console.log($(this));
+        $(this).toggleClass('active');
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    });
+  });
+  $('.star').on('click', function(e) {
+    var vote = $.ajax({
+      type: 'POST',
+      url: 'https://api.stackexchange.com/2.2/questions/' + id + '/favorite',
+      data: {
+        site: 'stackoverflow',
+        key: apiKey,
+        access_token: accessToken
+      },
+      success: function(res) {
+        console.log($(this));
+        $(this).toggleClass('active');
+      },
+      error: function(err) {
+        console.log(err);
+      }
+    });
+  });
 }
 
 
