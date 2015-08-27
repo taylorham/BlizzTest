@@ -2,8 +2,8 @@
 var apiKey = 'GVFBSQMXrChv4cUS6T4q2g(('
 
 jQuery.extend({
-  getQueryParameters : function(str) {
-    return (str || document.location.search).replace(/(^\?)/,'').split("&").map(function(n){return n = n.split("="),this[n[0]] = n[1],this}.bind({}))[0];
+  getQueryParameters : function() {
+    return (window.location.hash).replace(/(^\?)/,'').split("&").map(function(n){return n = n.split("="),this[n[0]] = n[1],this}.bind({}))[0];
   }
 });
 
@@ -56,14 +56,17 @@ function loadQuestions(key) {
 
 function checkLogin() {
   var params = $.getQueryParameters();
-    console.log(params);
-    renderLoggedIn(params.access_token, params.expires);
-  // } else {
-  //   $('#login-button').on('click', function(e) {
-  //     var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=read_inbox&redirect_uri=http://localhost:8000';
-  //     window.open(href);
-  //   });
-  // }
+  var accessToken = params['#access_token'];
+  var expires = params.expires;
+
+  if (accessToken) {
+    renderLoggedIn(params['#access_token'], params.expires);
+  } else {
+    $('#login-button').on('click', function(e) {
+      var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=read_inbox&redirect_uri=http://localhost:8000';
+      window.open(href);
+    });
+  }
 }
 
 function renderQuestionCollection(data) {
@@ -186,7 +189,7 @@ function renderAnswer(answer, i) {
 }
 
 function renderLoggedIn(token,exp) {
-
+  
 }
 
 

@@ -53,6 +53,10 @@ section {
   border: none;
 }
 
+#question-detail {
+  margin: 15px;
+}
+
 article {
   margin: 8px;
   border: 1px solid #5d91a3;
