@@ -1,33 +1,24 @@
 // API KEY GLOBAL VARIABLE
 var apiKey = 'GVFBSQMXrChv4cUS6T4q2g(('
 
+jQuery.extend({
+  getQueryParameters : function(str) {
+    return (str || document.location.search).replace(/(^\?)/,'').split("&").map(function(n){return n = n.split("="),this[n[0]] = n[1],this}.bind({}))[0];
+  }
+});
+
 $(function() {
 
   SE.init({
     clientId: 5421,
     key: apiKey,
-    channelUrl: 'file:///Users/Ham/projects/BlizzTest/blank',
+    channelUrl: 'http://localhost:8000/blank',
     complete: function () {
       loadQuestions(apiKey);
     }
   });
 
-  $('#login-button').click(function() {
-    SE.authenticate({
-      success: function(data) {
-        alert(
-          'User Authorized with account id = ' +
-          data.networkUsers[0].account_id + ', got access token = ' +
-          data.accessToken
-        );
-      },
-      error: function(data) {
-        alert('An error occurred:\n' + data.errorName + '\n' + data.errorMessage);
-      },
-      scope: ['read_inbox'],
-      networkUsers: true
-    });
-  });
+  checkLogin();
 
   $('#search-button').on('click', function(e) {
     console.log($('#search').val());
@@ -63,6 +54,18 @@ function loadQuestions(key) {
   });
 };
 
+function checkLogin() {
+  var params = $.getQueryParameters();
+    console.log(params);
+    renderLoggedIn(params.access_token, params.expires);
+  // } else {
+  //   $('#login-button').on('click', function(e) {
+  //     var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=read_inbox&redirect_uri=http://localhost:8000';
+  //     window.open(href);
+  //   });
+  // }
+}
+
 function renderQuestionCollection(data) {
   $('#questions-list').remove();
   var $questionsList = [];
@@ -84,12 +87,9 @@ function renderQuestion(item) {
     return
   }
 
-  var $question = $('<li>');
-  var $questionLink = $('<a>');
+  var $question = $('<li>').addClass('list-group-item');
+  var $questionLink = $('<a>').attr('data-id', item.question_id);
 
-  $question.addClass('list-group-item');
-  // $questionLink.attr('href', item.link);
-  $questionLink.attr('data-id', item.question_id);
   $questionLink.on('click', function(e) {
     e.preventDefault;
     loadDetail($(this).data('id'));
@@ -110,10 +110,6 @@ function searchQuestions(search) {
       console.log(err);
     }
   });
-}
-
-function renderSearchList(data) {
-  console.log(data);
 }
 
 function loadDetail(id) {
@@ -159,10 +155,10 @@ function renderAnswerCollection(data) {
   var $wrapper = $('<div>').addClass('answers-wrapper');
 
   if (answerCount <= 0) {
-    var $noAnswers = $('<h2>').html('No Answers');
+    var $noAnswers = $wrapper.append($('<h2>').html('No Answers'));
 
     console.log('Question loaded. No answers.');
-    $('#question-detail').append($noAnswers);
+    $('#question-detail').append($wrapper);
     return
   } else {
     console.log('Question loaded. ' + answerCount + ' answers.');
@@ -187,6 +183,10 @@ function renderAnswer(answer, i) {
   var $answer = $('<div>').addClass('answer').html(answer.body);
 
   return $answerContainer.append($answerNumber, $answer);
+}
+
+function renderLoggedIn(token,exp) {
+
 }
 
 
