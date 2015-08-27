@@ -69,12 +69,8 @@ function checkLoggedIn() {
   var accessToken = params['#access_token'];
 
   if (accessToken) {
-    renderLoggedIn(accessToken);
-  } else {
-    $('#login-button').on('click', function(e) {
-      var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=write_access&redirect_uri=http://localhost:8000';
-      window.open(href);
-    });
+    $('#login-button').addClass('hide');
+    $('#logout-button').removeClass('hide');
   }
 }
 
@@ -203,11 +199,6 @@ function renderAnswer(answer, i) {
   var $answer = $('<div>').addClass('answer').html(answer.body);
 
   return $answerContainer.append($answerNumber, $answer);
-}
-
-function renderLoggedIn(token,exp) {
-  $('#login-button').addClass('hide');
-  $('#logout-button').removeClass('hide');
 }
 
 function voteFunctions(id) {
