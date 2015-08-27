@@ -114,6 +114,9 @@ function searchQuestions(search) {
     url: 'https://api.stackexchange.com/2.2/search?key=' + apiKey + '&site=stackoverflow&order=desc&intitle=' + search + '&pagesize=10&page=1',
     success: function(res) {
       renderQuestionCollection(res);
+      $('#top-qs').addClass('hide');
+      $('#query').html(search);
+      $('#search-results').removeClass('hide');
     },
     error: function(err) {
       console.log(err);
