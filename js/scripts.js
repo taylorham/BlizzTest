@@ -1,5 +1,15 @@
 // API KEY GLOBAL VARIABLE
-var apiKey = 'GVFBSQMXrChv4cUS6T4q2g(('
+if (window.location.href.indexOf('http://localhost:8000') >= 0) {
+  // DEV API INFO
+  var apiKey = 'GVFBSQMXrChv4cUS6T4q2g((';
+  var clientId = 5421;
+  var channelUrl = 'http://localhost:8000/blank';
+} else {
+  // PROD API INFO
+  var apiKey = 'nLaoZdEl2BJtCKLR8X4plQ((';
+  var clientId = 5457;
+  var channelUrl = 'taylorham3d.com/BlizzTest/blank';
+}
 
 jQuery.extend({
   getQueryParameters : function() {
@@ -10,10 +20,10 @@ jQuery.extend({
 $(function() {
 
   SE.init({
-    clientId: 5421,
+    clientId: clientId,
     key: apiKey,
-    channelUrl: 'http://localhost:8000/blank',
-    complete: function () {
+    channelUrl: channelUrl,
+    complete: function() {
       loadQuestions(apiKey);
     }
   });
@@ -203,7 +213,7 @@ function renderLoggedIn(token,exp) {
 function voteFunctions(id) {
   var params = $.getQueryParameters();
   var accessToken = params['#access_token'];
-  
+
   $('.vote-up').on('click', function(e) {
     var vote = $.ajax({
       type: 'POST',
