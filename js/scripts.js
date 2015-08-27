@@ -8,7 +8,7 @@ if (window.location.href.indexOf('http://localhost:8000') >= 0) {
   // PROD API INFO
   var apiKey = 'nLaoZdEl2BJtCKLR8X4plQ((';
   var clientId = 5457;
-  var channelUrl = 'taylorham3d.com/BlizzTest/blank';
+  var channelUrl = 'http://taylorham3d.com/BlizzTest/blank';
 }
 
 jQuery.extend({
