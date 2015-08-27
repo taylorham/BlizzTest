@@ -57,7 +57,6 @@ function loadQuestions(key) {
 function checkLoggedIn() {
   var params = $.getQueryParameters();
   var accessToken = params['#access_token'];
-  var expires = params.expires;
 
   if (accessToken) {
     renderLoggedIn(accessToken);
@@ -132,7 +131,7 @@ function loadDetail(id) {
     type: 'GET',
     url: 'https://api.stackexchange.com/2.2/questions/' + id + '/answers/?site=stackoverflow&filter=withbody&key=' + apiKey,
     success: function(res) {
-      renderAnswerCollection(res);
+      renderAnswerCollection(res, id);
     },
     error: function(err) {
       console.log(err);
@@ -140,16 +139,16 @@ function loadDetail(id) {
   });
 }
 
-function renderDetail(data) {
+function renderDetail(data, id) {
   console.log('Loading question: "' + data.items[0].title + '"...');
 
   var $wrapper = $('<div>').addClass('question-wrapper');
   var $title = $('<h2>').html('Question: ').append(data.items[0].title);
   var $body = $('<div>').addClass('question-body');
   var $votes = $('<div>').attr('id', 'question-voting');
-  var voteHtml =  '<div class="vote-up-off glyphicon glyphicon-thumbs-up"><p>vote up</p></div>'
-                + '<div class="vote-down-off glyphicon glyphicon-thumbs-down"><p>vote down</p></div>'
-                + '<div class="star-off glyphicon glyphicon-star"><p>favorite</p></div>';
+  var voteHtml =  '<div class="vote-up glyphicon glyphicon-thumbs-up"><p>vote up</p></div>'
+                + '<div class="vote-down glyphicon glyphicon-thumbs-down"><p>vote down</p></div>'
+                + '<div class="star glyphicon glyphicon-star"><p>favorite</p></div>';
 
   $votes.append(voteHtml);
   $body.append(data.items[0].body);
@@ -158,7 +157,9 @@ function renderDetail(data) {
   return $('#question-detail').append($wrapper);
 };
 
-function renderAnswerCollection(data) {
+function renderAnswerCollection(data, id) {
+  voteFunctions(id);
+
   var $answersList = [];
   var answerCount = data.items.length;
   var $wrapper = $('<div>').addClass('answers-wrapper');
@@ -196,28 +197,30 @@ function renderAnswer(answer, i) {
 
 function renderLoggedIn(token,exp) {
   $('#login-button').addClass('hide');
-  $('#logout-button').removeClass('hide').on('click', function(e) {
-    // var href = 'https://stackexchange.com/oauth/dialog?client_id=5421&scope=write_access&redirect_uri=http://localhost:8000';
-    // window.open(href);
-  });
-
-  voteFunctions();
+  $('#logout-button').removeClass('hide');
 }
 
-function voteFunctions() {
-  $('.vote-up-off').on('click', function(e) {
+function voteFunctions(id) {
+  var params = $.getQueryParameters();
+  var accessToken = params['#access_token'];
+  
+  $('.vote-up').on('click', function(e) {
     var vote = $.ajax({
-      type: 'GET',
-      url: 'https://api.stackexchange.com/2.2/questions/' + id + '?site=stackoverflow&filter=withbody&key=' + apiKey,
+      type: 'POST',
+      url: 'https://api.stackexchange.com/2.2/questions/' + id + '/upvote',
+      data: {
+        site: 'stackoverflow',
+        key: apiKey,
+        access_token: accessToken
+      },
       success: function(res) {
-        $('.question-wrapper, .answers-wrapper').remove();
-        renderDetail(res);
+        console.log($(this));
+        $(this).toggleClass('active');
       },
       error: function(err) {
         console.log(err);
       }
     });
-    $(this).toggleClass('on');
   });
 }
 

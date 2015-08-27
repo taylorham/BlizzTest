@@ -21,7 +21,6 @@ a {
   border-radius: 6px;
 }
 
-
 #content {
   margin-top: 20px;
   padding: 0 10px;
@@ -51,33 +50,31 @@ h4 {
 }
 
 #question-detail {
-  margin: 15px;
+  padding: 15px;
 }
 
 #question-voting {
   float: left;
-  display: inline-block;
   text-align: center;
   width: 75px;
   margin-bottom: 30px;
-  color: lightblue;
+  color: #aaa;
   font-size: 24px;
 }
 
 #question-voting p {
-  margin-top: 6px;
+  padding-top: 6px;
   font-size: 9px;
 }
 
 #question-voting > div {
-  /*float: left;*/
   display: inline-block;
   cursor: pointer;
-  margin: 8px 30px 8px 15px;
+  padding: 8px 30px 8px 15px;
 }
 
-div[class*='-off'] {
-  color: #aaa;
+#question-voting > div.active {
+  color: lightblue;
 }
 
 article {
