@@ -205,6 +205,7 @@ function voteFunctions(id) {
   var params = $.getQueryParameters();
   var accessToken = params['#access_token'];
 
+// UPVOTE
   $('.vote-up').on('click', function(e) {
     var vote = $.ajax({
       type: 'POST',
@@ -215,14 +216,15 @@ function voteFunctions(id) {
         access_token: accessToken
       },
       success: function(res) {
-        console.log($(this));
-        $(this).toggleClass('active');
+        $('.vote-up').toggleClass('active');
       },
       error: function(err) {
         console.log(err);
       }
     });
   });
+
+// DOWNVOTE
   $('.vote-down').on('click', function(e) {
     var vote = $.ajax({
       type: 'POST',
@@ -233,14 +235,15 @@ function voteFunctions(id) {
         access_token: accessToken
       },
       success: function(res) {
-        console.log($(this));
-        $(this).toggleClass('active');
+        $('.vote-down').toggleClass('active');
       },
       error: function(err) {
         console.log(err);
       }
     });
   });
+
+// FAVORITE
   $('.star').on('click', function(e) {
     var vote = $.ajax({
       type: 'POST',
@@ -251,8 +254,7 @@ function voteFunctions(id) {
         access_token: accessToken
       },
       success: function(res) {
-        console.log($(this));
-        $(this).toggleClass('active');
+        $('.star').toggleClass('active');
       },
       error: function(err) {
         console.log(err);
